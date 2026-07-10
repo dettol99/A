@@ -13,10 +13,10 @@
 ## Newly Completed In This Pass
 - Continued from the exact next unfinished task in the prior `RESUME FROM HERE` section.
 - Added a real Supabase Storage upload path for community post images using the existing `community-images` bucket and the existing `posts.image_url` column.
-- Updated Create Post so an entered image URL or accessible local URI is uploaded to Supabase Storage before the post is persisted, with loading, success, error, preview, and disabled-button states.
+- Restored Create Post native gallery image selection with `expo-image-picker`, correct media-library permission requests, cancel/error/loading/preview/disabled states, and retained the image URL option as an alternative upload source.
 - Updated the Community feed to render post images from real `posts.image_url` values instead of hiding image attachments.
 - Updated Post Details to render the post image inline instead of showing the raw URL string.
-- Re-ran `npm ci`, `npm run typecheck`, and `npm run lint`; all completed successfully in this environment after keeping blocked native-image dependencies out of the install set.
+- Re-ran `npm ci`, `npm run typecheck`, and `npm run lint`; `npm ci` is currently blocked by the registry/security policy returning HTTP 403 for `whatwg-url-without-unicode@8.0.0-3`, so typecheck/lint cannot resolve dependencies in this environment after `npm ci` clears `node_modules`.
 
 ## Route Verification
 - Functional tab routes: Home, Discover, News, Community, and Profile.
@@ -43,13 +43,13 @@
 ## KNOWN ISSUES
 - Live data verification still requires deployed Supabase secrets: `TMDB_ACCESS_TOKEN`, `RAWG_API_KEY`, `GNEWS_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and optional `MODERATION_BLOCKLIST`.
 - The environment did not include a live `.env`, so checks verified static TypeScript/lint health and Supabase wiring in code, not a deployed backend session.
-- Create Post now uploads only an entered image URL or accessible URI through the existing Supabase Storage upload path. Native gallery/camera selection is intentionally postponed until `expo-image-picker` can be installed with a valid complete lockfile entry.
+- Create Post now supports native gallery selection through `expo-image-picker` and keeps an entered image URL as an alternative; both paths reuse the existing `communityService.uploadPostImage` Supabase Storage upload path.
 - Some supporting routes remain production-minimal: notification read states, richer account confirmation copy, dedicated list item detail editing, and richer post media rendering beyond a single image.
 - Safe-area wrappers and polished skeleton pagination/infinite-scroll remain incomplete across some detail/supporting routes.
 - Expo Router parameter passing is used for news detail articles; deep-linking directly to a news id without params still needs a database-backed lookup route enhancement.
 
 ## RESUME FROM HERE
-- Next unfinished task: install/enable `expo-image-picker` only after it can be installed with a valid complete `package-lock.json` entry, then add native gallery/camera picking to Create Post while reusing the existing `communityService.uploadPostImage` Supabase Storage upload path.
+- Current environment issue: dependency installation is blocked by HTTP 403 for `whatwg-url-without-unicode@8.0.0-3`, a transitive dependency of `react-native-url-polyfill`, so verification needs to be rerun once registry access permits `npm ci`.
 - Then add safe-area wrappers and more polished skeleton pagination/infinite-scroll to the tab feeds.
 - Then deepen remaining production UX: notification read states, richer account confirmation prompts, list item detail editing, and news detail database lookup for direct deep links.
 - Keep provider API calls server-side only through Supabase Edge Functions; do not add secret API keys to client code.
@@ -61,4 +61,4 @@
 - Set Supabase Edge Function secrets for TMDB, RAWG, GNews, Supabase service role, and optional moderation blocklist.
 - Deploy Supabase Edge Functions.
 - Configure Supabase Auth providers and Storage bucket settings.
-- Restore npm registry/package access for `expo-image-picker` so native gallery/camera picking can be implemented; until then, community post images remain limited to URL/accessible-URI uploads through Supabase Storage.
+- Restore npm registry/package access for `whatwg-url-without-unicode@8.0.0-3` so `npm ci`, typecheck, and lint can complete in this environment.
