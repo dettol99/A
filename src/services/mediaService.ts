@@ -1,5 +1,7 @@
+import type { SearchResult } from '@/types/api';
 import type { MediaType } from '@/types/database';
 import { supabase } from './supabase';
+import { unwrapEdgeFunctionData } from './functionResponse';
 
 export type MediaSearchParams = {
   query: string;
@@ -13,10 +15,18 @@ export type MediaDetailsParams = {
 };
 
 export const mediaService = {
-  trending: (mediaType?: MediaType) => supabase.functions.invoke('trending-media', { body: { mediaType } }),
-  search: ({ query, mediaType }: MediaSearchParams) => supabase.functions.invoke('search-media', { body: { query, mediaType } }),
-  details: ({ source, sourceId, mediaType }: MediaDetailsParams) =>
-    supabase.functions.invoke('media-details', { body: { source, sourceId, mediaType } }),
+  trending: async (mediaType?: MediaType) => {
+    const response = await supabase.functions.invoke('trending-media', { body: { mediaType } });
+    return { ...response, data: unwrapEdgeFunctionData<SearchResult[]>(response.data) ?? [] };
+  },
+  search: async ({ query, mediaType }: MediaSearchParams) => {
+    const response = await supabase.functions.invoke('search-media', { body: { query, mediaType } });
+    return { ...response, data: unwrapEdgeFunctionData<SearchResult[]>(response.data) ?? [] };
+  },
+  details: async ({ source, sourceId, mediaType }: MediaDetailsParams) => {
+    const response = await supabase.functions.invoke('media-details', { body: { source, sourceId, mediaType } });
+    return { ...response, data: unwrapEdgeFunctionData(response.data) };
+  },
   persist: (item: {
     source: string;
     sourceId: string;
