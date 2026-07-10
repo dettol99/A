@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FlatList, Text } from 'react-native';
+import { FlatList, Image, Text } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Button, Card, Field, Header, Screen, StateView } from '@/components/ui';
 import { communityService } from '@/services/communityService';
@@ -60,7 +60,7 @@ export default function PostDetails() {
         ListHeaderComponent={(
           <Card>
             <Text style={{ color: colors.text, fontSize: 18, lineHeight: 28, textAlign: 'right' }}>{post.body}</Text>
-            {post.image_url ? <Text style={{ color: colors.muted, textAlign: 'right' }}>{post.image_url}</Text> : null}
+            {post.image_url ? <Image source={{ uri: post.image_url }} style={{ height: 260, borderRadius: 18, backgroundColor: colors.background }} resizeMode="cover" /> : null}
             <Button title="إعجاب" onPress={() => user ? communityService.like(id, user.id) : showAuthRequiredDialog()} />
             <Button title="إبلاغ" onPress={() => user ? communityService.report(user.id, id, 'inappropriate') : showAuthRequiredDialog()} />
           </Card>
