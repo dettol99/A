@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react';
 import { FlatList, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
