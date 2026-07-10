@@ -14,6 +14,7 @@ export type SearchResult = {
 
 export type NewsArticle = {
   id: string;
+  sourceId: string;
   title: string;
   description?: string | null;
   url: string;

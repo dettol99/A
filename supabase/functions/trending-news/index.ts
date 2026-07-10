@@ -19,6 +19,7 @@ Deno.serve(async (req: Request) => {
     const result = await fetchJson<{ articles: GNewsArticle[] }>(url);
     const data = result.articles.map((article) => ({
       id: article.url,
+      sourceId: article.url,
       title: article.title,
       description: article.description ?? null,
       url: article.url,
