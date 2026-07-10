@@ -18,6 +18,15 @@
 - Updated Post Details to render the post image inline instead of showing the raw URL string.
 - Re-ran `npm install`, `npm run typecheck`, and `npm run lint`; all completed successfully in this environment.
 
+
+## Latest Review Fixes
+- Added Expo Router package entry metadata and declared `expo-image-picker` plus `react-native-url-polyfill` dependencies. The Expo-compatible install command was attempted, but this environment returned `Error: HTTP Proxy Network Error: Forbidden`; direct npm install also returned `E403 403 Forbidden - GET https://registry.npmjs.org/expo-image-picker`.
+- Imported `react-native-url-polyfill/auto` before Supabase client creation.
+- Added a follow-up Supabase migration that recreates secure `auth.uid()` RLS policies for user-owned interests, lists, list items, ratings, saved news, reactions, follows, blocks, and reports without unrestricted public writes.
+- Fixed saved-news persistence so the app finds/upserts canonical `news_items` rows and stores only the real `news_items.id` UUID in `saved_news.news_id`.
+- Completed Create Post gallery image selection with permission handling, preview, upload to `community-images`, loading/success/error states, disabled buttons, and URL input as an optional alternative.
+- Re-ran `npm run typecheck` and `npm run lint`; both completed successfully.
+
 ## Route Verification
 - Functional tab routes: Home, Discover, News, Community, and Profile.
 - Functional supporting routes: Media Details, News Details, Post Details, Create Post, My Lists, Edit Profile, Other User Profile, Notifications, Saved Items, Blocked Users, Settings, and Onboarding.
@@ -43,13 +52,11 @@
 ## KNOWN ISSUES
 - Live data verification still requires deployed Supabase secrets: `TMDB_ACCESS_TOKEN`, `RAWG_API_KEY`, `GNEWS_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and optional `MODERATION_BLOCKLIST`.
 - The environment did not include a live `.env`, so checks verified static TypeScript/lint health and Supabase wiring in code, not a deployed backend session.
-- Create Post now uploads an entered image URL or accessible URI to Supabase Storage, but native device gallery/camera picking is still pending because adding `expo-image-picker` failed with an npm registry 403 in this environment.
 - Some supporting routes remain production-minimal: notification read states, richer account confirmation copy, dedicated list item detail editing, and richer post media rendering beyond a single image.
 - Safe-area wrappers and polished skeleton pagination/infinite-scroll remain incomplete across some detail/supporting routes.
 - Expo Router parameter passing is used for news detail articles; deep-linking directly to a news id without params still needs a database-backed lookup route enhancement.
 
 ## RESUME FROM HERE
-- Next unfinished task: install/enable `expo-image-picker` when registry access allows it, then add native gallery/camera picking to Create Post while reusing the new `communityService.uploadPostImage` Supabase Storage upload path.
 - Then add safe-area wrappers and more polished skeleton pagination/infinite-scroll to the tab feeds.
 - Then deepen remaining production UX: notification read states, richer account confirmation prompts, list item detail editing, and news detail database lookup for direct deep links.
 - Keep provider API calls server-side only through Supabase Edge Functions; do not add secret API keys to client code.
@@ -61,4 +68,4 @@
 - Set Supabase Edge Function secrets for TMDB, RAWG, GNews, Supabase service role, and optional moderation blocklist.
 - Deploy Supabase Edge Functions.
 - Configure Supabase Auth providers and Storage bucket settings.
-- Restore npm registry/package access for `expo-image-picker` so native gallery/camera picking can be implemented.
+- Restore npm registry/package access so `npm install` can materialize the newly declared image-picker and URL polyfill dependencies in lockfile/node_modules.
