@@ -1,0 +1,2 @@
+import { supabase } from './supabase';
+export const profileService = { get: (id: string) => supabase.from('profiles').select('*').eq('id', id).single(), follow: (follower_id: string, following_id: string) => supabase.from('follows').upsert({ follower_id, following_id }), block: (blocker_id: string, blocked_id: string) => supabase.from('blocks').upsert({ blocker_id, blocked_id }), deleteAccount: () => supabase.functions.invoke('delete-account') };
