@@ -11,54 +11,56 @@
 - Phase 8 — Quality and Documentation: setup documentation, ESLint flat config, implementation report maintenance, verification notes, and external action notes.
 
 ## Newly Completed In This Pass
-- Continued from the exact next unfinished task in the prior `RESUME FROM HERE` section.
-- Added a real Supabase Storage upload path for community post images using the existing `community-images` bucket and the existing `posts.image_url` column.
-- Restored Create Post native gallery image selection with `expo-image-picker`, correct media-library permission requests, cancel/error/loading/preview/disabled states, and retained the image URL option as an alternative upload source.
-- Updated the Community feed to render post images from real `posts.image_url` values instead of hiding image attachments.
-- Updated Post Details to render the post image inline instead of showing the raw URL string.
-- Re-ran `npm ci`, `npm run typecheck`, and `npm run lint`; `npm ci` is currently blocked by the registry/security policy returning HTTP 403 for `whatwg-url-without-unicode@8.0.0-3`, so typecheck/lint cannot resolve dependencies in this environment after `npm ci` clears `node_modules`.
+- Reworked shared UI tokens/components toward the attached premium light iOS glass reference: light gray/white/black palette, translucent surfaces, thin borders, soft shadows, large rounded corners, safe-area screen wrapper, and purple only as a small accent.
+- Updated the profile tab to use a wide editable cover image, overlapping circular avatar, username/handle/member badge, follower/following counts, and the requested Overview/Time/Genres/Platforms/People tabs.
+- Kept Games active in profile stats and removed any Books or coming-soon treatment from the profile experience.
+- Added real sign-in/create-account UI in the existing onboarding route using Supabase Auth, without replacing the app or backend.
+- Added automatic profile creation on session load/auth state changes through the existing Supabase `profiles` table.
+- Completed edit-profile image flows for avatar and cover uploads through Supabase Storage using the existing service layer pattern.
+- Added `cover_url` to the `profiles` schema so editable profile covers persist in Supabase.
+- Kept voice rooms inside Community and switched visible room filters to game-name filters: Overwatch 2, Valorant, Call of Duty, EA FC, Fortnite, Apex Legends, and Other.
+- Fixed the Supabase embed error for posts/profiles by using explicit relationship selects: `profiles!posts_author_id_fkey` for posts and `profiles!comments_author_id_fkey` for comments.
+- Updated community feed and post details to read the aliased `author` profile data returned by the explicit relationships.
 
 ## Route Verification
-- Functional tab routes: Home, Discover, News, Community, and Profile.
-- Functional supporting routes: Media Details, News Details, Post Details, Create Post, My Lists, Edit Profile, Other User Profile, Notifications, Saved Items, Blocked Users, Settings, and Onboarding.
-- Protected interactions gate guests through the existing auth-required flow or protected-route state.
+- Functional tab routes remain: Home, Discover, News, Community, and Profile.
+- Functional supporting routes remain: Media Details, News Details, Post Details, Create Post, My Lists, Edit Profile, Other User Profile, Notifications, Saved Items, Blocked Users, Settings, and Onboarding.
+- Protected interactions still gate guests through the existing auth-required flow or protected-route state.
 - External provider API calls remain server-side only through Supabase Edge Functions; no TMDB, RAWG, or GNews secrets were added to client code.
-- This pass statically verified route source wiring and type/lint health; live route opening still requires a configured Expo/Supabase runtime and deployed secrets.
 
 ## Real Supabase Connectivity
 - Client services use the shared Supabase client and real Supabase tables/functions.
 - Media discovery/details use Supabase Edge Functions.
 - News listing uses the Supabase Edge Function; saved news uses the `saved_news` table.
 - Community posts, post images, comments, likes, reports, profiles, lists, list items, follows, blocks, and account deletion all call Supabase tables/storage/functions.
-- No mock data or fixture-backed UI flows are intentionally present. The only placeholder-like references are UI placeholders/skeleton states, not mock business data.
+- Auth, profile creation, profile editing, avatar upload, cover upload, post creation, list creation, add-to-list, ratings, saved items, logout, and delete-account flows remain wired to existing Supabase services/routes rather than mock data.
+- No mock data or fixture-backed UI flows were added.
 
-## Quality Checklist
-- List screen states: implemented loading/skeleton, empty, error/retry, pull-to-refresh where applicable, and authenticated/guest handling on primary feed/list screens.
-- Long-press behavior: implemented on Home and Discover movie/TV/game result cards to open `AddToListBottomSheet` for authenticated users and `AuthRequiredDialog` for guests.
-- Guest restrictions: browsing tabs remain available; protected actions such as create post, comment, like/report, follow/block, save news, and add-to-list trigger auth-required behavior or protected-route states.
-- RTL layout: Arabic-first RTL setup remains configured in `src/i18n/index.ts`; visible text is Arabic-first with shared translations where practical.
-- Secret scan: no provider API secrets were added to client files; TMDB, RAWG, GNews, service-role, and moderation secrets remain server-side inside Supabase Edge Functions.
-- External API access: client services call Supabase tables/functions/storage and do not call TMDB, RAWG, or GNews directly.
+## What Was Actually Tested
+- Ran `npm install` successfully; dependencies were already up to date.
+- Ran `npm run typecheck` successfully.
+- Ran `npm run lint` successfully after fixing the edit-profile lint warning.
+- Attempted `npx expo export --platform web`; it was blocked by the environment proxy with `HTTP Proxy Network Error: Forbidden`, so the web runtime could not be fully exported/tested here.
+- Live authentication/profile/list/post creation tests were not executed because this environment does not include runtime Supabase credentials/session configuration.
 
 ## KNOWN ISSUES
 - Live data verification still requires deployed Supabase secrets: `TMDB_ACCESS_TOKEN`, `RAWG_API_KEY`, `GNEWS_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and optional `MODERATION_BLOCKLIST`.
 - The environment did not include a live `.env`, so checks verified static TypeScript/lint health and Supabase wiring in code, not a deployed backend session.
-- Create Post now supports native gallery selection through `expo-image-picker` and keeps an entered image URL as an alternative; both paths reuse the existing `communityService.uploadPostImage` Supabase Storage upload path.
-- Some supporting routes remain production-minimal: notification read states, richer account confirmation copy, dedicated list item detail editing, and richer post media rendering beyond a single image.
-- Safe-area wrappers and polished skeleton pagination/infinite-scroll remain incomplete across some detail/supporting routes.
-- Expo Router parameter passing is used for news detail articles; deep-linking directly to a news id without params still needs a database-backed lookup route enhancement.
+- Web export/runtime validation is currently blocked by the environment HTTP proxy returning Forbidden.
+- Profile cover persistence requires applying the updated migration or adding `cover_url text` to `public.profiles` in Supabase.
+- Avatar/cover upload requires a public `profile-images` storage bucket and matching storage policies in Supabase Dashboard if not already configured.
+- Some supporting routes remain production-minimal: notification read states, richer account confirmation prompts, list item detail editing, and news detail database lookup for direct deep links.
 
 ## RESUME FROM HERE
-- Current environment issue: dependency installation is blocked by HTTP 403 for `whatwg-url-without-unicode@8.0.0-3`, a transitive dependency of `react-native-url-polyfill`, so verification needs to be rerun once registry access permits `npm ci`.
-- Then add safe-area wrappers and more polished skeleton pagination/infinite-scroll to the tab feeds.
-- Then deepen remaining production UX: notification read states, richer account confirmation prompts, list item detail editing, and news detail database lookup for direct deep links.
-- Keep provider API calls server-side only through Supabase Edge Functions; do not add secret API keys to client code.
-- Continue to run `npm install`, `npm run typecheck`, and `npm run lint` after each pass; treat lint warnings separately from failures.
+- Apply the updated Supabase schema change for `profiles.cover_url` and configure/verify the `profile-images` storage bucket policies.
+- Re-run `npx expo export --platform web` or `npm run web` in an environment without the current HTTP proxy block, then capture screenshots against the attached reference.
+- With real Supabase credentials, manually test: create account, sign in, automatic profile creation, edit profile, avatar upload, cover upload, create list, add movie/TV/game to list, create post, community feed, ratings, saved items, logout, and delete account.
+- Continue polishing the remaining route-level visual details to match the reference more closely while preserving existing services, routes, and integrations.
 
 ## External Actions Required
 - Fill `.env` from `.env.example`.
 - Apply Supabase migrations, including the expanded RLS policy statements in `supabase/migrations/000001_schema.sql` and storage policies in `supabase/migrations/000002_storage.sql`.
+- Ensure `profile-images` and `community-images` storage buckets and policies are configured.
 - Set Supabase Edge Function secrets for TMDB, RAWG, GNews, Supabase service role, and optional moderation blocklist.
 - Deploy Supabase Edge Functions.
 - Configure Supabase Auth providers and Storage bucket settings.
-- Restore npm registry/package access for `whatwg-url-without-unicode@8.0.0-3` so `npm ci`, typecheck, and lint can complete in this environment.

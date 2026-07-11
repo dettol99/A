@@ -1,2 +1,7 @@
 import { supabase } from './supabase';
-export const authService = { signIn: (email: string, password: string) => supabase.auth.signInWithPassword({ email, password }), signUp: (email: string, password: string) => supabase.auth.signUp({ email, password }), createProfile: (id: string, username?: string) => supabase.from('profiles').upsert({ id, username }), saveInterests: (userId: string, interests: string[]) => supabase.from('user_interests').upsert(interests.map((interest) => ({ user_id: userId, interest }))) };
+export const authService = {
+  signIn: (email: string, password: string) => supabase.auth.signInWithPassword({ email, password }),
+  signUp: (email: string, password: string) => supabase.auth.signUp({ email, password }),
+  createProfile: (id: string, username?: string) => supabase.from('profiles').upsert({ id, username, display_name: username }, { onConflict: 'id' }),
+  saveInterests: (userId: string, interests: string[]) => supabase.from('user_interests').upsert(interests.map((interest) => ({ user_id: userId, interest }))),
+};

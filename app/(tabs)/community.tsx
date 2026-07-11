@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { FlatList, Image, RefreshControl, Text } from 'react-native';
+import { FlatList, Image, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Button, Card, Header, Screen, SkeletonList, StateView } from '@/components/ui';
+import { Button, Card, Chip, Header, Screen, SkeletonList, StateView } from '@/components/ui';
 import { showAuthRequiredDialog } from '@/components/AuthRequiredDialog';
 import { communityService } from '@/services/communityService';
 import { useAuth } from '@/hooks/useAuth';
@@ -30,6 +30,8 @@ export default function Community() {
   return (
     <Screen>
       <Header title={t('community')} />
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: spacing.sm, flexDirection: 'row-reverse' }}>{['Overwatch 2','Valorant','Call of Duty','EA FC','Fortnite','Apex Legends','Other'].map((game, index) => <Chip key={game} title={game} active={index === 1} />)}</ScrollView>
+      <Card><Text style={{ color: colors.text, textAlign: 'right', fontWeight: '800' }}>غرف صوتية</Text><Text style={{ color: colors.muted, textAlign: 'right' }}>غرف الألعاب داخل المجتمع حسب اسم اللعبة.</Text></Card>
       <Button title={t('createPost')} onPress={() => user ? router.push('/community/create') : showAuthRequiredDialog()} />
       {loading ? <SkeletonList /> : error ? <StateView title={error} actionLabel={t('retry')} onAction={load} /> : (
         <FlatList
@@ -42,7 +44,7 @@ export default function Community() {
             <Card onPress={() => router.push(`/community/${item.id}`)}>
               {item.image_url ? <Image source={{ uri: item.image_url }} style={{ height: 180, borderRadius: 16, backgroundColor: colors.background }} resizeMode="cover" /> : null}
               <Text style={{ color: colors.text, textAlign: 'right', fontSize: 16 }}>{item.body}</Text>
-              <Text style={{ color: colors.muted, textAlign: 'right' }}>{item.profiles?.display_name ?? item.profiles?.username ?? 'مستخدم'}</Text>
+              <Text style={{ color: colors.muted, textAlign: 'right' }}>{item.author?.display_name ?? item.author?.username ?? 'مستخدم'}</Text>
             </Card>
           )}
         />
