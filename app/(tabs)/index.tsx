@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { FlatList, Image, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { AddToListBottomSheet } from '@/components/AddToListBottomSheet';
@@ -34,16 +35,22 @@ function PosterCard({ item, onLongPress }: { item: SearchResult; onLongPress: ()
   </Pressable>;
 }
 
+function mediaLabel(item: SearchResult) {
+  const parts = [item.mediaType === 'movie' ? 'فيلم' : item.mediaType === 'tv' ? 'مسلسل' : item.mediaType === 'game' ? 'لعبة' : undefined, item.releaseDate ? String(item.releaseDate).slice(0, 4) : undefined].filter(Boolean);
+  return parts.join(' · ');
+}
+
 function HeroCard({ item, onLongPress }: { item: SearchResult; onLongPress: () => void }) {
+  const subtitle = mediaLabel(item);
   return <Pressable onPress={() => openMedia(item)} onLongPress={onLongPress} style={styles.heroCard}>
     {item.posterUrl ? <Image source={{ uri: item.posterUrl }} style={styles.heroImage} /> : <View style={[styles.heroImage, styles.posterFallback]} />}
     <View style={styles.heroOverlay} />
     <View style={styles.heroContent}>
       <Text numberOfLines={1} style={styles.heroTitle}>{item.title}</Text>
-      <Text numberOfLines={1} style={styles.heroSubtitle}>{item.mediaType === 'game' ? 'لعبة' : 'مغامرة · خيال علمي'}</Text>
+      {subtitle ? <Text numberOfLines={1} style={styles.heroSubtitle}>{subtitle}</Text> : null}
       <View style={styles.heroBottomRow}>
         <View style={styles.watchButton}><Text style={styles.playIcon}>▶</Text><Text style={styles.watchText}>شاهد الآن</Text></View>
-        <View style={styles.ratingPill}><Text style={styles.ratingText}>★ {item.rating?.toFixed(1) ?? '8.7'}</Text></View>
+        {item.rating ? <View style={styles.ratingPill}><Text style={styles.ratingText}>★ {item.rating.toFixed(1)}</Text></View> : null}
       </View>
     </View>
   </Pressable>;
@@ -52,6 +59,7 @@ function HeroCard({ item, onLongPress }: { item: SearchResult; onLongPress: () =
 export default function Home() {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const insets = useSafeAreaInsets();
   const [items, setItems] = useState<SearchResult[]>([]);
   const [pick, setPick] = useState<SearchResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -63,7 +71,7 @@ export default function Home() {
   const select = (item: SearchResult) => user ? setPick(item) : showAuthRequiredDialog();
 
   return <View style={styles.pageShell}><View style={styles.phoneShell}>
-    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} />}>
+    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingTop: Math.max(insets.top + 14, 24), paddingBottom: Math.max(insets.bottom + 118, 132) }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} />}>
       <View style={styles.topBar}>
         <View style={styles.brand}><View style={styles.logoMark}><Text style={styles.logoText}>M</Text></View><Text style={styles.brandText}>Medly</Text></View>
         <GlassButton label="♧" />
