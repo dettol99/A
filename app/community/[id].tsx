@@ -52,7 +52,7 @@ export default function PostDetails() {
 
   return (
     <Screen>
-      <Header title="تفاصيل المنشور" subtitle={post.profiles?.username} />
+      <Header title="تفاصيل المنشور" subtitle={post.author?.username} />
       <FlatList
         data={comments}
         contentContainerStyle={{ gap: spacing.md, paddingBottom: spacing.lg }}
@@ -68,7 +68,7 @@ export default function PostDetails() {
         ListEmptyComponent={<StateView title="لا توجد تعليقات بعد" />}
         renderItem={({ item }) => (
           <Card>
-            <Text style={{ color: colors.text, fontWeight: '800', textAlign: 'right' }}>{item.profiles?.username ?? 'مستخدم'}</Text>
+            <Text style={{ color: colors.text, fontWeight: '800', textAlign: 'right' }}>{item.author?.username ?? 'مستخدم'}</Text>
             <Text style={{ color: colors.text, lineHeight: 24, textAlign: 'right' }}>{item.body}</Text>
           </Card>
         )}
